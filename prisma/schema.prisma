@@ -1,0 +1,38 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  name      String
+  messages  Message[] // 一个房间可以有多条消息
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}
+
+model Message {
+  messageId Int @id @default(autoincrement())
+  roomId    Int
+  sender    String
+  content   String
+  time      Int
+  room      Room   @relation(fields: [roomId], references: [id])
+  user      User?   @relation(fields: [sender], references: [name])
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  messages Message[] // 用户可以发送多条消息
+}
