@@ -1,22 +1,46 @@
 import { initTRPC } from '@trpc/server';
-import { postRouter } from "~/server/api/routers/post";
-import { userRouter } from "~/server/api/routers/user";
-import { roomRouter } from "~/server/api/routers/room";
-import { messageRouter } from "~/server/api/routers/message";
+import { createExpressMiddleware } from '@trpc/server/adapters/express'; // 正确的导入
+import RoomMessageGetUpdateRouter from '../api/room/message/getUpdate';
+import MessageAddRouter from './message/add';
+import RoomMessageListRouter from './room/message/list';
+import RoomAddRouter from './room/add';
+import RoomDeleteRouter from './room/delete';
+import RoomListRouter from './room/list';
 
-// 初始化 tRPC 实例
 const t = initTRPC.create();
 
-// 创建路由器
-export const appRouter = t.router({
-  post: postRouter,
-  user: userRouter,
-  room: roomRouter,
-  message: messageRouter,
+const appRouter = t.router({
+  // 添加房间
+  addRoom: RoomAddRouter,
+  // 删除房间
+  deleteRoom: RoomDeleteRouter,
+  // 列出房间信息
+  listRooms: RoomListRouter,
+  // 获取房间消息更新
+  getRoomMessageUpdate: RoomMessageGetUpdateRouter,
+  // 添加消息
+  addMessage: MessageAddRouter,
+  // 列出房间消息
+  listRoomMessages: RoomMessageListRouter,
+  //设置名字
+  setName:setNameRouter
 });
 
-// 导出类型定义
 export type AppRouter = typeof appRouter;
 
+// 创建 tRPC 请求处理器
+const handler = createExpressMiddleware({
+  router: appRouter,
+});
 
-export const createCaller = t.createCallerFactory(appRouter);
+
+import express from 'express';
+import { setNameRouter } from './setName';
+const app = express();
+app.use(handler);
+
+// 启动 HTTP 服务器
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});

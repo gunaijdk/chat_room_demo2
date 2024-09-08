@@ -1,8 +1,9 @@
+// routes.ts
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { type NextRequest } from "next/server";
 
 import { env } from "~/env";
-import { appRouter } from "~/server/api/root";
+import { AppRouter } from "~/server/api/root"; // 确保这个路径正确
 import { createTRPCContext } from "~/server/api/trpc";
 
 /**
@@ -19,7 +20,7 @@ const handler = (req: NextRequest) =>
   fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
-    router: appRouter,
+    router: AppRouter, // 确保这里使用的是正确的路由器实例
     createContext: () => createContext(req),
     onError:
       env.NODE_ENV === "development"
